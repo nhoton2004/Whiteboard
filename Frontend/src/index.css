@@ -1,0 +1,89 @@
+@font-face {
+  font-family: 'MyFont';
+  /* change host if backend not local */
+  src: url('http://localhost:3000/fonts/MyFont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; font-family: 'MyFont', Arial, sans-serif; }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  padding: 10px 16px;
+  background: #0d6efd;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 320px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+}
+
+.board {
+  flex: 1;
+  position: relative;
+  background: #ffffff;
+  display:flex;
+  align-items:stretch;
+  justify-content:stretch;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display:block;
+  cursor: crosshair;
+}
+
+.controls input, .controls button {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.small {
+  font-size: 13px;
+  color: #555;
+}
+
+.cursor-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,0,0,0.85);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 20;
+}
+.chat-box {
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 6px;
+}
+.chat-message {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
