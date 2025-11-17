@@ -5,11 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 export default function Whiteboard({ user }) {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
-  const [tool, setTool] = useState("pen"); // pen | eraser
+  const [tool, setTool] = useState("pen"); // pen | line | circle | rect | triangle | star | eraser | text
   const [color, setColor] = useState("#000000");
   const [width, setWidth] = useState(3);
   const [chat, setChat] = useState([]);
   const [msg, setMsg] = useState("");
+  const [zoom, setZoom] = useState(100);
   const opsRef = useRef([]);
 
   useEffect(() => {
@@ -162,43 +163,106 @@ export default function Whiteboard({ user }) {
     });
   }, [user]);
 
+  const colors = ["#FFEB3B", "#FFA726", "#000000", "#4CAF50", "#00BCD4", "#2196F3", "#9C27B0", "#E91E63", "#F44336"];
+
   return (
     <div className="whiteboard-root">
-      <div className="topbar">
-        <div>Signed: <strong>{user || "Guest"}</strong></div>
-        <div>
-          Tool:
-          <select value={tool} onChange={e => setTool(e.target.value)}>
-            <option value="pen">Pen</option>
-            <option value="eraser">Eraser</option>
-          </select>
-          <input type="color" value={color} onChange={e => setColor(e.target.value)} />
-          <input type="range" min="1" max="20" value={width} onChange={e => setWidth(e.target.value)} />
-          <button onClick={handleClear}>Clear</button>
-          <button onClick={handleUndo}>Undo</button>
+      {/* Top Header */}
+      <div className="header">
+        <div className="header-left">
+          <h3 style={{margin: 0}}>Biểu đồ không tiêu đề</h3>
+        </div>
+        <div className="header-right">
+          <button className="header-btn">Đang kết nối</button>
+          <button className="header-btn">Người dùng</button>
+          <button className="header-btn danger">Dừng</button>
+          <button className="header-btn">Bật</button>
+          <button className="header-btn">Alco</button>
+          <button className="header-btn">Card</button>
         </div>
       </div>
 
-      <div className="main">
-        <canvas
-          ref={canvasRef}
-          onMouseDown={pointerDown}
-          onMouseMove={pointerMove}
-          onMouseUp={pointerUp}
-          onMouseLeave={pointerUp}
-          onTouchStart={pointerDown}
-          onTouchMove={pointerMove}
-          onTouchEnd={pointerUp}
-          className="canvas"
-        />
-        <div className="sidebar">
+      {/* Main Toolbar */}
+      <div className="toolbar">
+        <div className="toolbar-left">
+          <button className="tool-btn" title="View mode">☰</button>
+          <div className="zoom-control">
+            <span>{zoom}%</span>
+          </div>
+          <button className="tool-btn" onClick={handleUndo}>↶</button>
+          <button className="tool-btn">↷</button>
+          <button className={`tool-btn ${tool === 'pen' ? 'active' : ''}`} onClick={() => setTool('pen')}>✏️</button>
+          <button className={`tool-btn ${tool === 'text' ? 'active' : ''}`} onClick={() => setTool('text')}>Text</button>
+          <button className="tool-btn">🖼️</button>
+          <button className="tool-btn" onClick={handleClear}>🗑️</button>
+          
+          {/* Color Palette */}
+          <div className="color-palette">
+            {colors.map(c => (
+              <button 
+                key={c} 
+                className={`color-btn ${color === c ? 'active' : ''}`}
+                style={{backgroundColor: c}}
+                onClick={() => setColor(c)}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="toolbar-right">
+          <button className="tool-btn">⛶</button>
+          <button className="tool-btn">💾</button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content">
+        {/* Left Sidebar - Shape Tools */}
+        <div className="left-sidebar">
+          <div className="tool-label">Quảng, khôi</div>
+          <button className={`shape-btn ${tool === 'pen' ? 'active' : ''}`} onClick={() => setTool('pen')} title="Line">
+            <div style={{width: '100%', height: '2px', background: '#666', margin: '20px 0'}}></div>
+          </button>
+          <button className={`shape-btn ${tool === 'circle' ? 'active' : ''}`} onClick={() => setTool('circle')} title="Circle">
+            <div style={{width: '35px', height: '35px', border: '2px solid #666', borderRadius: '50%'}}></div>
+          </button>
+          <button className={`shape-btn ${tool === 'rect' ? 'active' : ''}`} onClick={() => setTool('rect')} title="Rectangle">
+            <div style={{display: 'flex', gap: '4px'}}>
+              <div style={{width: '20px', height: '30px', border: '2px solid #666'}}></div>
+              <div style={{width: '30px', height: '30px', border: '2px solid #666'}}></div>
+            </div>
+          </button>
+          <button className={`shape-btn ${tool === 'triangle' ? 'active' : ''}`} onClick={() => setTool('triangle')} title="Triangle">
+            <div style={{width: 0, height: 0, borderLeft: '20px solid transparent', borderRight: '20px solid transparent', borderBottom: '35px solid #666'}}></div>
+          </button>
+          <button className={`shape-btn ${tool === 'star' ? 'active' : ''}`} onClick={() => setTool('star')} title="Star">
+            <div style={{fontSize: '30px', color: '#666'}}>★</div>
+          </button>
+        </div>
+
+        {/* Canvas Area */}
+        <div className="canvas-container">
+          <canvas
+            ref={canvasRef}
+            onMouseDown={pointerDown}
+            onMouseMove={pointerMove}
+            onMouseUp={pointerUp}
+            onMouseLeave={pointerUp}
+            onTouchStart={pointerDown}
+            onTouchMove={pointerMove}
+            onTouchEnd={pointerUp}
+            className="canvas"
+          />
+        </div>
+
+        {/* Right Sidebar - Chat */}
+        <div className="right-sidebar">
           <div className="chat">
             <div className="chat-list">
               {chat.map((m, i) => <div key={i}><strong>{m.from}</strong>: {m.text}</div>)}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <input value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendChat(); }} />
-              <button onClick={sendChat}>Send</button>
+              <input value={msg} onChange={e => setMsg(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendChat(); }} placeholder="Nhập tin nhắn..." />
+              <button onClick={sendChat}>Gửi</button>
             </div>
           </div>
         </div>
